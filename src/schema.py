@@ -36,6 +36,10 @@ curriculum_schema = {
 
 TASK_LIST = [
     "linear_regression",
+    "linear_regression_large",
+    "linear_regression_very_large",
+    "linear_regression_huge",
+    "linear_regression_very_huge",
     "sparse_linear_regression",
     "linear_classification",
     "relu_2nn_regression",
@@ -49,7 +53,8 @@ training_schema = {
     "num_training_examples": merge(tinteger, nullable, default(None)),
     "data": merge(tstring, allowed(["gaussian"])),
     "batch_size": merge(tinteger, default(64)),
-    "learning_rate": merge(tfloat, default(3e-4)),
+    "learning_rate": merge(tfloat, default(1e-4)),
+    "weight_decay": merge(tfloat, default(0.)),
     "train_steps": merge(tinteger, default(1000)),
     "save_every_steps": merge(tinteger, default(1000)),  # how often to checkpoint
     "keep_every_steps": merge(tinteger, default(-1)),  # permanent checkpoints

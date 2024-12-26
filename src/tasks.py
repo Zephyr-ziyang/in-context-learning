@@ -54,6 +54,10 @@ def get_task_sampler(
 ):
     task_names_to_classes = {
         "linear_regression": LinearRegression,
+        "linear_regression_large": LinearRegression,
+        "linear_regression_very_large": LinearRegression,
+        "linear_regression_huge": LinearRegression,
+        "linear_regression_very_huge": LinearRegression,
         "sparse_linear_regression": SparseLinearRegression,
         "linear_classification": LinearClassification,
         "noisy_linear_regression": NoisyLinearRegression,
@@ -79,6 +83,45 @@ class LinearRegression(Task):
         super(LinearRegression, self).__init__(n_dims, batch_size, pool_dict, seeds)
         self.scale = scale
 
+        if pool_dict is None and seeds is None:
+            self.w_b = torch.randn(self.b_size, self.n_dims, 1)
+        elif seeds is not None:
+            self.w_b = torch.zeros(self.b_size, self.n_dims, 1)
+            generator = torch.Generator()
+            assert len(seeds) == self.b_size
+            for i, seed in enumerate(seeds):
+                generator.manual_seed(seed)
+                self.w_b[i] = torch.randn(self.n_dims, 1, generator=generator)
+        else:
+            assert "w" in pool_dict
+            indices = torch.randperm(len(pool_dict["w"]))[:batch_size]
+            self.w_b = pool_dict["w"][indices]
+
+    def evaluate(self, xs_b):
+        w_b = self.w_b.to(xs_b.device)
+        ys_b = self.scale * (xs_b @ w_b)[:, :, 0]
+        return ys_b
+
+    @staticmethod
+    def generate_pool_dict(n_dims, num_tasks, **kwargs):  # ignore extra args
+        return {"w": torch.randn(num_tasks, n_dims, 1)}
+
+    @staticmethod
+    def get_metric():
+        return squared_error
+
+    @staticmethod
+    def get_training_metric():
+        return mean_squared_error
+
+
+class NonLinearRegression(Task):
+    def __init__(self, n_dims, batch_size, pool_dict=None, seeds=None, scale=1):
+        """scale: a constant by which to scale the randomly sampled weights."""
+        super(LinearRegression, self).__init__(n_dims, batch_size, pool_dict, seeds)
+        self.scale = scale
+
+        # a batch size
         if pool_dict is None and seeds is None:
             self.w_b = torch.randn(self.b_size, self.n_dims, 1)
         elif seeds is not None:

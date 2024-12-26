@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import GPT2Model, GPT2Config
+from transformers import GPTJModel, GPTJConfig
 from tqdm import tqdm
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression, Lasso
@@ -190,6 +191,7 @@ class LeastSquaresModel:
             if i == 0:
                 preds.append(torch.zeros_like(ys[:, 0]))  # predict zero for first point
                 continue
+            # autoregression like manner
             train_xs, train_ys = xs[:, :i], ys[:, :i]
             test_x = xs[:, i : i + 1]
 

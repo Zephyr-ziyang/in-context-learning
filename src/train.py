@@ -36,7 +36,9 @@ def sample_seeds(total_seeds, count):
 
 
 def train(model, args):
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.training.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(),
+                                 lr=args.training.learning_rate,
+                                 weight_decay=args.training.weight_decay)
     curriculum = Curriculum(args.training.curriculum)
 
     starting_step = 0
@@ -154,14 +156,13 @@ def main(args):
     model = build_model(args.model)
     model.cuda()
     model.train()
-
     train(model, args)
-
     if not args.test_run:
         _ = get_run_metrics(args.out_dir)  # precompute metrics for eval
 
 
 if __name__ == "__main__":
+    torch.cuda.set_device(1)
     parser = QuinineArgumentParser(schema=schema)
     args = parser.parse_quinfig()
     assert args.model.family in ["gpt2", "lstm"]

@@ -28,7 +28,7 @@ def sample_transformation(eigenvalues, normalize=False):
     U, _, _ = torch.linalg.svd(torch.randn(n_dims, n_dims))
     t = U @ torch.diag(eigenvalues) @ torch.transpose(U, 0, 1)
     if normalize:
-        norm_subspace = torch.sum(eigenvalues**2)
+        norm_subspace = torch.sum(eigenvalues ** 2)
         t *= math.sqrt(n_dims / norm_subspace)
     return t
 
@@ -53,6 +53,13 @@ class GaussianSampler(DataSampler):
             xs_b = xs_b @ self.scale
         if self.bias is not None:
             xs_b += self.bias
+        # following early stage, n_dims_truncated will be None
         if n_dims_truncated is not None:
             xs_b[:, :, n_dims_truncated:] = 0
         return xs_b
+
+
+if __name__ == '__main__':
+    gs = GaussianSampler(n_dims=10, bias=torch.tensor(0.0) , scale=torch.tensor(1.0))
+    xs_b = gs.sample_xs(n_points=10, b_size=64)
+    print(xs_b.shape)

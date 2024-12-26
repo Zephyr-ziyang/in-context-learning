@@ -22,11 +22,13 @@ def get_model_from_run(run_path, step=-1, only_conf=False):
         return None, conf
 
     model = models.build_model(conf.model)
+    print(step)
 
     if step == -1:
         state_path = os.path.join(run_path, "state.pt")
         state = torch.load(state_path)
         model.load_state_dict(state["model_state_dict"])
+        print('state.pt loaded')
     else:
         model_path = os.path.join(run_path, f"model_{step}.pt")
         state_dict = torch.load(model_path)
@@ -314,7 +316,7 @@ def get_run_metrics(
         cache_created = os.path.getmtime(save_path)
         if checkpoint_created > cache_created:
             recompute = True
-
+    print('all_models', all_models)
     all_metrics = compute_evals(all_models, evaluation_kwargs, save_path, recompute)
     return all_metrics
 

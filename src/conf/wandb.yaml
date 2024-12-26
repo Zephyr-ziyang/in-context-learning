@@ -1,5 +1,5 @@
 wandb:
-    project: in-context-training
-    entity: your-entity
-    notes:
+    project: icl-numerical-solvers
+    entity: baojian-fudan-university
+    notes: This config tries to replicate results in linear regression setting.
     log_every_steps: 100
